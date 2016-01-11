@@ -27,9 +27,9 @@ app.use(function(req, res, next) {
 });
 
 var comments = [
-    {"author": "Pete Hunt", "text": "This is one comment"},
-    {"author": "Jordan Walke", "text": "This is *another* comment"},
-    {"author": "Salvador Sapia", "text": "Hello World"}
+    {"id":"1", "author": "Pete Hunt", "text": "This is one comment"},
+    {"id":"2", "author": "Jordan Walke", "text": "This is *another* comment"},
+    {"id":"3", "author": "Salvador Sapia", "text": "Hello World"}
 ];
 
 
@@ -40,6 +40,7 @@ router.get('/comments/', function(req, res) {
 
 router.post('/comments/', function(req, res) {
     var comment = req.body;
+    comment.id = comments.length + 1;
     comments = comments.concat([comment]);
 });
 
