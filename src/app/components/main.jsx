@@ -1,8 +1,77 @@
+/** In this file, we create a React component which incorporates components provided by material-ui */
+
+import React from 'react';
+import RaisedButton from 'material-ui/lib/raised-button';
+import Dialog from 'material-ui/lib/dialog';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
+import LightRawTheme from 'material-ui/lib/styles/raw-themes/light-raw-theme';
+import Colors from 'material-ui/lib/styles/colors';
+import FlatButton from 'material-ui/lib/flat-button';
+
+import TextField from 'material-ui/lib/text-field';
 
 
-var CommentList = React.createClass({
+const containerStyle = {
+  textAlign: 'center',
+};
+
+const Main = React.createClass({
+
+  childContextTypes: {
+    muiTheme: React.PropTypes.object,
+  },
+
+  getInitialState() {
+    return {
+      muiTheme: ThemeManager.getMuiTheme(LightRawTheme),
+      open: false,
+    };
+  },
+
+  getChildContext() {
+    return {
+      muiTheme: this.state.muiTheme,
+    };
+  },
+
+  componentWillMount() {
+    let newMuiTheme = ThemeManager.modifyRawThemePalette(this.state.muiTheme, {
+      accent1Color: Colors.deepOrange500,
+    });
+
+    this.setState({muiTheme: newMuiTheme});
+  },
+
+  _handleRequestClose() {
+    this.setState({
+      open: false,
+    });
+  },
+
+  _handleTouchTap() {
+    this.setState({
+      open: true,
+    });
+  },
+
+  render() {
+    const standardActions = (
+      <FlatButton
+        label="Okey"
+        secondary={true}
+        onTouchTap={this._handleRequestClose}
+      />
+    );
+
+    return (
+	<CommentBox url="http://127.0.0.1:8081/api/comments" pollInterval={2000} />
+    );
+  },
+});
+
+const CommentList = React.createClass({
   render: function() {
-    var commentNodes = this.props.data.map(function(comment) {
+    const commentNodes = this.props.data.map(function(comment) {
       return (
         <Comment author={comment.author} key={comment.id}>
           {comment.text}
@@ -14,10 +83,10 @@ var CommentList = React.createClass({
         {commentNodes}
       </div>
     );
-  }
+  },
 });
 
-var CommentForm = React.createClass({
+const CommentForm = React.createClass({
   getInitialState: function() {
     return {author: '', text: ''};
   },
@@ -29,8 +98,8 @@ var CommentForm = React.createClass({
   },
   handleSubmit: function(e) {
     e.preventDefault();
-    var author = this.state.author.trim();
-    var text = this.state.text.trim();
+    const author = this.state.author.trim();
+    const text = this.state.text.trim();
     if (!text || !author) {
       return;
     }
@@ -40,25 +109,29 @@ var CommentForm = React.createClass({
   render: function() {
     return (
         <form className="commentForm" onSubmit={this.handleSubmit}>
-	<input
-          type="text"
-          placeholder="Your name"
+	<TextField
+  	hintText="Your name"
+	// />
+
+	// <input
+        //  type="text"
+        //  placeholder="Your name"
           value={this.state.author}
           onChange={this.handleAuthorChange}
         />
-        <input
-          type="text"
-          placeholder="Say something..."
+       
+	<TextField
+  	hintText="Say something..."
           value={this.state.text}
           onChange={this.handleTextChange}
         />
-	<input type="submit" value="Post" />
+	<RaisedButton type="submit" label="post" className="button-submit" primary={true} />
       </form>
     );
-  }
+  },
 });
 
-var CommentBox = React.createClass({
+const CommentBox = React.createClass({
   loadCommentsFromServer: function() {
     $.ajax({
       url: this.props.url,
@@ -69,7 +142,7 @@ var CommentBox = React.createClass({
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
-      }.bind(this)
+      }.bind(this),
     });
   },
   handleCommentSubmit: function(comment) {
@@ -84,7 +157,7 @@ var CommentBox = React.createClass({
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
-      }.bind(this)
+      }.bind(this),
     });
   },
   getInitialState: function() {
@@ -102,13 +175,13 @@ var CommentBox = React.createClass({
         <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
-  }
+  },
 });
 
-var Comment = React.createClass({
+const Comment = React.createClass({
 
   rawMarkup: function() {
-    var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
+    const rawMarkup = marked(this.props.children.toString(), {sanitize: true});
     return { __html: rawMarkup };
   },
 
@@ -121,10 +194,14 @@ var Comment = React.createClass({
 	<span dangerouslySetInnerHTML={this.rawMarkup()} />
       </div>
     );
-  }
+  },
 });
 
+/*
 ReactDOM.render(
   <CommentBox url="http://127.0.0.1:8081/api/comments" pollInterval={2000} />,
   document.getElementById('content')
 );
+*/
+
+export default Main;
